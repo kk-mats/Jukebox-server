@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.prod.json",
+	"compilerOptions": {
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"sourceMap": true,
+		"baseUrl": "."
+	}
+}
