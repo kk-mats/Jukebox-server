@@ -1,4 +1,6 @@
 dist/
+projects/
+outputs/
 
 # Logs
 logs
