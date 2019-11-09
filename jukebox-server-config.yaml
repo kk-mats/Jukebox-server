@@ -1,0 +1,26 @@
+paths:
+  projects: projects
+  outputs: outputs
+
+
+plugins:
+  ccvolti:
+    name: CCVolti
+    servers:
+      - versions: ["1.0"]
+        address: localhost:4000
+        concurrent: 2
+
+  ccfsw:
+    name: CCFinderSW
+    servers:
+      - versions: ["1.0"]
+        address: localhost:4100
+      - versions: ["0.9"]
+        address: localhost:4101
+
+  ccfx:
+    name: CCFinderX
+    servers:
+      - versions: ["1.0"]
+        address: localhost:5000
