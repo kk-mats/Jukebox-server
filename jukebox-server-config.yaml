@@ -22,5 +22,5 @@ plugins:
   ccfx:
     name: CCFinderX
     servers:
-      - versions: ["1.0"]
+      - versions: ["10.2.7.4"]
         address: localhost:5000
