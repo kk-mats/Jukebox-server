@@ -1,3 +1,4 @@
+import * as path from "path";
 import axios from "axios";
 
 import * as Failable from "src/types/failure/Failable";
@@ -61,7 +62,13 @@ const useProcessor = (slug: string, version?: string) => {
 			const res = await axios.post<Failable.Type<DetectionResponse>>(
 				`http://${address.value}/run/${slug}/${version || ""}`,
 				{
-					target: project.value.targetDir,
+					target: {
+						relative: path.relative(
+							ConfigRepository.paths.projects,
+							project.value.targetDir
+						),
+						absolute: project.value.targetDir
+					},
 					output: ConfigRepository.paths.outputs,
 					parameters: query.parameters
 				} as DetectionQuery

@@ -1,5 +1,8 @@
 type DetectionQuery = {
-	target: string;
+	target: {
+		relative: string;
+		absolute: string;
+	};
 	output: string;
 	parameters: any;
 };
