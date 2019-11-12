@@ -61,7 +61,7 @@ class Type {
 		const u = await this.findByUid(uid);
 		if (!u.failure) {
 			return Failable.succeed(
-				(await bcrypt.compare(u.value.password, password))
+				(await bcrypt.compare(password, u.value.password))
 					? u.value
 					: null
 			);
