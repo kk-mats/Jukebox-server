@@ -61,6 +61,14 @@ const FailureCode = {
 			};
 		}
 	},
+	user: {
+		notFound: (uid: string): Failure => {
+			return {
+				code: "USER_NOT_FOUND",
+				message: `user of uid: ${uid} is not found`
+			};
+		}
+	},
 	common: {
 		unknown: (source: string, body: unknown): Failure => {
 			return {
