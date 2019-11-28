@@ -1,5 +1,4 @@
 import * as bcrypt from "bcrypt";
-import * as mongoose from "mongoose";
 
 import * as Failable from "src/types/failure/Failable";
 import FailureCode from "src/types/failure/FailureCode";
@@ -7,23 +6,15 @@ import FailureCode from "src/types/failure/FailureCode";
 import * as User from "src/models/User";
 
 class Type {
-	constructor() {
-		mongoose.connect("mongodb://localhost/jukebox", {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			useCreateIndex: true
-		});
-	}
-
 	private static async encrypto(password: string): Promise<string> {
-		return bcrypt.hash(password, 16);
+		return bcrypt.hash(password, 8);
 	}
 
 	private static unknonFailure<R>(fun: string, err: any): Failable.Type<R> {
 		return Failable.fail(FailureCode.common.unknown(`${fun} at DB`, err));
 	}
 
-	public static async create(
+	public static async register(
 		uid: string,
 		password: string
 	): Promise<Failable.Type<{ uid: string }>> {
@@ -34,14 +25,24 @@ class Type {
 		return Failable.succeed({ uid: (await u.save()).uid });
 	}
 
-	public static async findByUid(
-		uid: string
+	public static async findById(
+		id: string
 	): Promise<Failable.Type<User.Type>> {
-		const r = await User.Model.findOne({ uid });
+		const r = await User.Model.findById(id);
 		if (r) {
 			return Failable.succeed(r);
 		}
-		return Failable.fail(FailureCode.user.notFound(uid));
+		return Failable.fail(FailureCode.user.idNotFound(id));
+	}
+
+	public static async findByUid(
+		uid: string
+	): Promise<Failable.Type<User.Type>> {
+		const r = await User.Model.findOne({ uid }).exec();
+		if (r) {
+			return Failable.succeed(r);
+		}
+		return Failable.fail(FailureCode.user.uidNotFound(uid));
 	}
 
 	public static async isAvailable(
@@ -70,5 +71,4 @@ class Type {
 	}
 }
 
-const UserRepository = new Type();
 export default Type;

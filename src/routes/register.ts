@@ -18,7 +18,7 @@ router.post("/", (req, res) => {
 	}
 
 	(async (): Promise<void> => {
-		const r = await UserRepository.create(body.uid, body.password);
+		const r = await UserRepository.register(body.uid, body.password);
 		res.send(r.failure || r.value);
 	})();
 });
