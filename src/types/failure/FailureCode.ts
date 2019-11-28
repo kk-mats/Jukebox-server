@@ -1,4 +1,5 @@
 import Failure from "src/types/failure/Failure";
+import Target from "../query/Target";
 
 const FailureCode = {
 	property: {
@@ -48,24 +49,71 @@ const FailureCode = {
 		}
 	},
 	detector: {
-		serverUnavailable: (
-			address: string,
-			name: string,
-			version?: string
-		): Failure => {
+		serverUnavailable: (name: string, version?: string): Failure => {
 			return {
 				code: "SERVER_UNAVAILABLE",
-				message: `detector server of ${name}${
+				message: `${name} Server ${
 					version ? `ver. ${version}` : ""
-				} (${address}) is unavailable`
+				} is unavailable`
 			};
 		}
 	},
 	user: {
-		notFound: (uid: string): Failure => {
+		uidNotFound: (uid: string): Failure => {
 			return {
 				code: "USER_NOT_FOUND",
 				message: `user of uid: ${uid} is not found`
+			};
+		},
+		idNotFound: (id: string): Failure => {
+			return {
+				code: "USER_NOT_FOUND",
+				message: `user of id: ${id} is not found`
+			};
+		}
+	},
+	project: {
+		slugNotFound: (slug: string): Failure => {
+			return {
+				code: "PROJECT_NOT_FOUND",
+				message: `project of slug: ${slug} is not found`
+			};
+		},
+		slugAlreadyExists: (slug: string): Failure => {
+			return {
+				code: "PROJECT_ALREADY_EXISTS",
+				message: `project of slug: ${slug} already exists`
+			};
+		},
+		historyNotFound: (slug: string, hid: string): Failure => {
+			return {
+				code: "HISTORY_NOT_FOUND",
+				message: `history ${hid} is not found at project ${slug}`
+			};
+		},
+		unversioned: (slug: string): Failure => {
+			return {
+				code: "PROJECT_UNVERSIONED",
+				message: `project ${slug} is unversioned`
+			};
+		},
+		jobUnavailable: (slug: string, versions: string[]): Failure => {
+			return {
+				code: "JOB_UNAVAILABLE",
+				message: `job unavailable for ${slug} ver.${versions.toString()}`
+			};
+		},
+		jobNotFound: (hid: string): Failure => {
+			return {
+				code: "JOB_NOT_FOUND",
+				message: `job of history ${hid} is not found`
+			};
+		},
+		invalidTarget: (slug: string, target: Target): Failure => {
+			return {
+				code: "INVALID_TARGET",
+				message: `target ${target.targetDir ||
+					"./"} on project ${slug} is not a file or a directory`
 			};
 		}
 	},
