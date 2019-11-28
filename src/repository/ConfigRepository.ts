@@ -40,7 +40,24 @@ class Type {
 		return Failable.fail(FailureCode.serverConfig.serverNotFound(slug));
 	}
 
-	public servers(slug: string): Failable.Type<ServerConfig.Server[]> {
+	public servers(): (ServerConfig.Server & {
+		slug: string;
+	})[] {
+		return Object.entries(this.config.plugins)
+			.map(plugin => {
+				return plugin[1].servers.map(server => {
+					return {
+						slug: plugin[0],
+						...server
+					};
+				});
+			})
+			.reduce((l, r) => {
+				return [...l, ...r];
+			});
+	}
+
+	public serversOf(slug: string): Failable.Type<ServerConfig.Server[]> {
 		const plugin = this.plugin(slug);
 		if (plugin.failure) {
 			return Failable.delegate(plugin);
@@ -49,18 +66,29 @@ class Type {
 		return Failable.succeed(plugin.value.servers);
 	}
 
-	public address(slug: string, version?: string): Failable.Type<string> {
+	public server(
+		slug: string,
+		version?: string
+	): Failable.Type<{ address: string; name: string; version: string }> {
 		const plugin = this.config.plugins[slug];
 		if (plugin.servers.length > 0) {
 			if (!version) {
-				return Failable.succeed(plugin.servers[0].address);
+				return Failable.succeed({
+					address: plugin.servers[0].address,
+					name: plugin.name,
+					version: plugin.servers[0].versions[0]
+				});
 			}
 
 			const server = plugin.servers.find(value => {
 				return value.versions.includes(version);
 			});
 			if (server) {
-				return Failable.succeed(server.address);
+				return Failable.succeed({
+					address: server.address,
+					name: plugin.name,
+					version
+				});
 			}
 		}
 
