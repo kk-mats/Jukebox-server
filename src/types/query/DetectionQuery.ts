@@ -1,7 +1,10 @@
 type DetectionQuery = {
-	target: string;
+	target: {
+		absolute: string;
+		relative: string;
+	};
 	output: string;
-	parameters: any;
+	parameters: object;
 };
 
 export default DetectionQuery;

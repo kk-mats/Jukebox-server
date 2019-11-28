@@ -1,5 +1,6 @@
 type Target = {
-	targetDir?: string;
+	targetDir: string;
+	branch?: string;
 };
 
 export default Target;
