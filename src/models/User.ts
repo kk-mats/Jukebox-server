@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 import { user } from "../constants/limitations";
 
 export type Type = mongoose.Document & {
+	_id: mongoose.Types.ObjectId;
 	uid: string;
 	password: string;
 };
