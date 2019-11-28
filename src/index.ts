@@ -1,38 +1,57 @@
 import * as express from "express";
 import * as session from "express-session";
-import * as cookieParser from "cookie-parser";
 import * as passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 
+import init from "src/init";
 import UserRepository from "src/repository/UserRepository";
 
-import version from "src/routes/version";
-import play from "src/routes/play";
-import register from "src/routes/register";
-import home from "src/routes/home";
-import root from "src/routes/root";
+import * as User from "src/models/User";
 
+import version from "src/routes/version";
+import register from "src/routes/register";
+import projects from "src/routes/projects";
+import New from "src/routes/new";
+import * as Failable from "./types/failure/Failable";
+
+import mongoDBStore = require("connect-mongodb-session");
+
+init();
+
+process.on("unhandledRejection", (reason, promise) => {
+	console.dir(reason);
+	console.dir(promise);
+});
+
+const Store = new (mongoDBStore(session))({
+	uri: process.env.SESSION_DB_URI as string,
+	collection: "sessions"
+});
 const server = express();
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
-server.use(cookieParser());
 server.use(
 	session({
 		resave: false,
-		secret: "jukebox todo",
+		saveUninitialized: true,
+		secret: process.env.SESSION_SECRET as string,
 		cookie: {
-			secure: false,
-			maxAge: 60 * 60 * 24
-		}
+			maxAge: 1000 * 60 * 60 * 24
+		},
+		store: Store
 	})
 );
+
 server.use(passport.initialize());
 server.use(passport.session());
-
 passport.use(
 	new LocalStrategy(
-		{ usernameField: "uid", passwordField: "password" },
-		async (uid, password, done) => {
+		{
+			usernameField: "uid",
+			passwordField: "password",
+			passReqToCallback: true
+		},
+		async (req, uid, password, done) => {
 			try {
 				const r = await UserRepository.authenticate(uid, password);
 				if (r.failure) {
@@ -43,7 +62,7 @@ passport.use(
 					return done(null, false);
 				}
 
-				return done(null, r.value.uid);
+				return done(null, r.value);
 			} catch (err) {
 				console.log(err);
 				return done(err);
@@ -52,58 +71,82 @@ passport.use(
 	)
 );
 
-passport.serializeUser((user, done) => {
-	done(null, user);
+passport.serializeUser<User.Type, unknown>((user, done) => {
+	done(null, user._id);
 });
 
-passport.deserializeUser(
+passport.deserializeUser<User.Type, string>(
 	async (id, done): Promise<void> => {
 		try {
-			const r = await UserRepository.findByUid(id as string);
+			const r = await UserRepository.findById(id as string);
 			if (r.failure) {
-				return done(r.failure, null);
+				return done(r.failure);
 			}
 			return done(null, r.value);
 		} catch (err) {
 			console.log(err);
+			return done(err);
 		}
 	}
 );
 
-const loggined = <T extends express.Request>(
+const loggedin = <T extends express.Request>(
 	req: T,
 	res: express.Response,
 	next: express.NextFunction
 ): void => {
 	if (req.isAuthenticated()) {
-		return next();
+		next();
+		return;
 	}
-	res.redirect("/");
+	res.sendStatus(401);
+};
+
+const notLoggedin = <T extends express.Request>(
+	req: T,
+	res: express.Response,
+	next: express.NextFunction
+): void => {
+	if (req.isUnauthenticated()) {
+		next();
+		return;
+	}
+	const u = req.user as User.Type;
+	res.send(Failable.succeed(u.uid));
 };
 
 server.use("/version", version);
-server.use("/play", play);
 server.use("/register", register);
-server.post(
+server.use(
 	"/login",
-	passport.authenticate("local", { failureRedirect: "/" }),
-	(req, res) => {
-		res.send({ redirect: `/${req.user}` });
-	}
+	notLoggedin,
+	passport.authenticate("local"),
+	express.Router().post("/", (req, res) => {
+		const u = req.user as User.Type;
+		res.send(Failable.succeed(u.uid));
+	})
 );
-server.use("/", root);
-
-server.use<{ uid: string }>(
-	"/{uid}",
-	loggined,
-	(req, res, next): void => {
-		if (req.user === req.params.uid) {
-			return next();
+server.use(
+	"/loginAs",
+	express.Router().get("/", (req, res) => {
+		if (req.isUnauthenticated()) {
+			res.send(Failable.succeed(undefined));
+			return;
 		}
-		res.sendStatus(403);
-	},
-	home
+
+		const u = req.user as User.Type;
+		res.send(Failable.succeed(u.uid));
+	})
 );
+server.use(
+	"/logout",
+	express.Router().get("/", (req, res) => {
+		req.logout();
+		res.send({});
+	})
+);
+server.use("/projects", loggedin, projects);
+server.use("/new", loggedin, New);
 
 server.listen(3000, () => {
 	console.log("server started");
