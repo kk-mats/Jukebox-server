@@ -6,7 +6,7 @@ import VCS from "../types/VCS";
 
 export type Type = mongoose.Document & {
 	_id: mongoose.Types.ObjectId;
-	ownerId: string;
+	ownerId: mongoose.Types.ObjectId;
 	name: string;
 	slug: string;
 	vcs: VCS;
