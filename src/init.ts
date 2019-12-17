@@ -22,6 +22,11 @@ const dispatchJob = async (
 	}
 
 	try {
+		await ProjectRepository.dispatch(
+			job.value.ownerId,
+			job.value.projectSlug,
+			job.value.hid
+		);
 		const { data } = await axios.post<Failable<any>>(
 			`http://${address}/run/${job.value.detector.slug}/${job.value.detector.version}`,
 			job.value.query
