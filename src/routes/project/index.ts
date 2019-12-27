@@ -1,20 +1,21 @@
-import { promises as fs } from "fs";
+import { promises as fs, createWriteStream } from "fs";
 import * as path from "path";
 
 import * as express from "express";
 import axios from "axios";
+import * as mongoose from "mongoose";
+import * as archiver from "archiver";
+
+import * as Failable from "src/types/failure/Failable";
+import FailureCode from "src/types/failure/FailureCode";
+import { RawDetectionQuery } from "src/types/query/DetectionQuery";
+import * as User from "src/models/User";
 
 import ConfigRepository from "src/repository/ConfigRepository";
-import FailureCode from "src/types/failure/FailureCode";
-import DetectionQuery from "src/types/query/DetectionQuery";
-import Target from "src/types/query/Target";
-import * as User from "../../models/User";
+import ProjectRepository from "src/repository/ProjectRepository";
+import JobRepository from "src/repository/JobRepository";
 
-import ProjectRepository from "../../repository/ProjectRepository";
-
-import JobRepository from "../../repository/JobRepository";
-
-import * as Failable from "../../types/failure/Failable";
+import * as pathUtils from "src/util";
 
 const router = express.Router({ mergeParams: true });
 
@@ -75,21 +76,18 @@ router.post<{ project: string; detector: string; version: string }>(
 		if (req.user) {
 			const u = req.user as User.Type;
 			const { project, detector, version } = req.params;
+			const q = req.body as RawDetectionQuery;
 
 			(async (): Promise<void> => {
 				try {
-					const relative: Target = req.body.target || {
-						targetDir: "./"
-					};
-
-					const absolute = await ProjectRepository.resolveTarget(
+					const validatedTarget = await ProjectRepository.validateTarget(
 						u._id,
 						project,
-						relative
+						q.target
 					);
 
-					if (absolute.failure) {
-						res.status(400).send(absolute);
+					if (validatedTarget.failure) {
+						res.status(400).send(validatedTarget);
 						return;
 					}
 
@@ -120,7 +118,7 @@ router.post<{ project: string; detector: string; version: string }>(
 							version: d.value.version
 						},
 						{
-							target: relative.targetDir,
+							target: validatedTarget.value,
 							parameters: req.body.parameters
 						}
 					);
@@ -139,10 +137,7 @@ router.post<{ project: string; detector: string; version: string }>(
 							version: d.value.version
 						},
 						{
-							target: {
-								absolute: absolute.value.targetDir,
-								relative: relative.targetDir
-							},
+							target: validatedTarget.value,
 							output: history.value.historyDir,
 							parameters: req.body.parameters
 						}
@@ -168,6 +163,45 @@ router.post<{ project: string; detector: string; version: string }>(
 	}
 );
 
+router.get<{ project: string; hid: string }>(
+	"/histories/:hid/artifacts",
+	(req, res) => {
+		if (req.user) {
+			const u = req.user as User.Type;
+			const { project, hid } = req.params;
+			(async (): Promise<void> => {
+				const r = await ProjectRepository.findHistory(
+					u._id,
+					project,
+					hid
+				);
+				if (r.failure) {
+					res.status(404).send(r);
+					return;
+				}
+
+				const artifactsPath = pathUtils.resolveArtifactsPath(
+					u._id,
+					r.value.project._id,
+					r.value.history._id
+				);
+
+				const archivePath = path.resolve(
+					path.resolve(
+						artifactsPath,
+						"../",
+						`${project}-${hid}-artifacts.zip`
+					)
+				);
+				const archive = archiver("zip", { zlib: { level: 9 } });
+				archive.pipe(createWriteStream(archivePath));
+				archive.directory(artifactsPath, false);
+				await archive.finalize();
+				res.sendFile(archivePath);
+			})();
+		}
+	}
+);
 router.get<{ project: string; hid: string }>("/histories/:hid", (req, res) => {
 	if (req.user) {
 		const u = req.user as User.Type;
@@ -197,6 +231,9 @@ router.get<{ project: string; hid: string }>("/histories/:hid", (req, res) => {
 
 			res.send(
 				Failable.succeed({
+					_id: mongoose.Types.ObjectId(
+						r.value.history._id
+					).toHexString(),
 					created: r.value.history.created,
 					dispatched: r.value.history.dispatched,
 					finished: r.value.history.finished,
@@ -210,32 +247,36 @@ router.get<{ project: string; hid: string }>("/histories/:hid", (req, res) => {
 	}
 });
 
-router.get<{ project: string; hid: string }>("/histories/:hid", (req, res) => {
-	if (req.user) {
-		const u = req.user as User.Type;
-		const { project, hid } = req.params;
-		(async (): Promise<void> => {
-			const p = await ProjectRepository.findHistory(u._id, project, hid);
-			if (p.failure) {
-				res.status(404).send(p);
-				return;
-			}
-			res.send(Failable.succeed(p.value));
-		})();
-	}
-});
-
 router.get<{ project: string }>("/histories", (req, res) => {
 	if (req.user) {
 		const u = req.user as User.Type;
 		const { project } = req.params;
 		(async (): Promise<void> => {
-			const p = await ProjectRepository.getHistories(u._id, project);
-			if (p.failure) {
-				res.status(404).send(p);
+			const histories = await ProjectRepository.getHistories(
+				u._id,
+				project
+			);
+			if (histories.failure) {
+				res.status(404).send(histories);
 				return;
 			}
-			res.send(Failable.succeed(p.value));
+			res.send(
+				Failable.succeed(
+					histories.value.map(history => {
+						return {
+							_id: mongoose.Types.ObjectId(
+								history._id
+							).toHexString(),
+							created: history.created,
+							dispatched: history.dispatched,
+							finished: history.finished,
+							detector: history.detector,
+							query: history.query,
+							status: history.status
+						};
+					})
+				)
+			);
 		})();
 	}
 });

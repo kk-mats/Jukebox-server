@@ -1,5 +1,5 @@
 import Failure from "src/types/failure/Failure";
-import Target from "../query/Target";
+import { RawTarget } from "../query/Target";
 
 const FailureCode = {
 	property: {
@@ -97,6 +97,12 @@ const FailureCode = {
 				message: `project ${slug} is unversioned`
 			};
 		},
+		commitIdNotFound: (commitId: string): Failure => {
+			return {
+				code: "COMMIT_ID_NOT_FOUND",
+				message: `commit ID ${commitId} is not found`
+			};
+		},
 		jobUnavailable: (slug: string, versions: string[]): Failure => {
 			return {
 				code: "JOB_UNAVAILABLE",
@@ -109,10 +115,10 @@ const FailureCode = {
 				message: `job of history ${hid} is not found`
 			};
 		},
-		invalidTarget: (slug: string, target: Target): Failure => {
+		invalidDirectory: (slug: string, directory?: string): Failure => {
 			return {
-				code: "INVALID_TARGET",
-				message: `target ${target.targetDir ||
+				code: "INVALID_DIRECTORY",
+				message: `target ${directory ||
 					"./"} on project ${slug} is not a file or a directory`
 			};
 		}

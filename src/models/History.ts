@@ -2,6 +2,7 @@ import * as mongoose from "mongoose";
 
 import Detector from "src/types/Detector";
 import Status from "src/types/Status";
+import { TargetForHistory } from "src/types/query/Target";
 
 export type Type = mongoose.Document & {
 	_id: mongoose.Types.ObjectId;
@@ -10,7 +11,7 @@ export type Type = mongoose.Document & {
 	finished: Date;
 	detector: Detector;
 	query: {
-		target: string;
+		target: TargetForHistory;
 		parameters: object;
 	};
 	status: Status;
@@ -38,8 +39,23 @@ export const Schema = new mongoose.Schema({
 	},
 	query: {
 		type: {
-			target: String,
-			parameters: Object
+			target: {
+				directory: {
+					type: String,
+					required: true
+				},
+				revision: {
+					type: {
+						type: String,
+						required: true
+					},
+					required: true
+				}
+			},
+			parameters: {
+				type: Object,
+				required: true
+			}
 		},
 		required: true
 	},

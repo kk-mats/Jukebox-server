@@ -4,7 +4,7 @@ import * as Job from "src/models/Job";
 import * as Failable from "src/types/failure/Failable";
 import FailureCode from "src/types/failure/FailureCode";
 
-import DetectionQuery from "src/types/query/DetectionQuery";
+import { ValidatedDetectionQuery } from "src/types/query/DetectionQuery";
 
 class Type {
 	public static async push(
@@ -12,7 +12,7 @@ class Type {
 		projectSlug: string,
 		hid: mongoose.Types.ObjectId,
 		detector: { slug: string; version: string },
-		query: DetectionQuery
+		query: ValidatedDetectionQuery
 	): Promise<Job.Type> {
 		return Job.Model.create({
 			ownerId,
@@ -45,12 +45,6 @@ class Type {
 		return Failable.fail(
 			FailureCode.project.jobUnavailable(slug, versions)
 		);
-	}
-
-	public static async dispatch(
-		jid: mongoose.Types.ObjectId
-	): Promise<Failable.Type<Job.Type>> {
-		return this.remove(jid);
 	}
 
 	public static async remove(

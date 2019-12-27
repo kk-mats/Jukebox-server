@@ -2,7 +2,7 @@ import * as mongoose from "mongoose";
 
 import * as User from "src/models/User";
 import Detector from "src/types/Detector";
-import DetectionQuery from "src/types/query/DetectionQuery";
+import { ValidatedDetectionQuery } from "src/types/query/DetectionQuery";
 
 export type Type = mongoose.Document & {
 	ownerId: mongoose.Types.ObjectId;
@@ -10,7 +10,7 @@ export type Type = mongoose.Document & {
 	hid: mongoose.Types.ObjectId;
 	scheduled: Date;
 	detector: Detector;
-	query: DetectionQuery;
+	query: ValidatedDetectionQuery;
 };
 
 const Schema = new mongoose.Schema({
@@ -43,8 +43,22 @@ const Schema = new mongoose.Schema({
 	query: {
 		type: {
 			target: {
-				absolute: String,
-				relative: String
+				type: {
+					directory: {
+						type: {
+							absolute: String,
+							relative: String
+						},
+						required: true
+					},
+					revision: {
+						type: {
+							branch: String,
+							commitId: String
+						}
+					}
+				},
+				required: true
 			},
 			output: String,
 			parameters: Object

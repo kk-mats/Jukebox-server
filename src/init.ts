@@ -27,11 +27,27 @@ const dispatchJob = async (
 			job.value.projectSlug,
 			job.value.hid
 		);
+
+		if (job.value.query.target.revision) {
+			await ProjectRepository.checkout(
+				job.value.ownerId,
+				job.value.projectSlug,
+				job.value.query.target.revision
+			);
+		}
+
 		const { data } = await axios.post<Failable<any>>(
 			`http://${address}/run/${job.value.detector.slug}/${job.value.detector.version}`,
 			job.value.query
 		);
 
+		if (job.value.query.target.revision) {
+			await ProjectRepository.checkout(
+				job.value.ownerId,
+				job.value.projectSlug,
+				"master"
+			);
+		}
 		console.dir(data);
 
 		if (data.failure) {
