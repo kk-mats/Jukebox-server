@@ -10,6 +10,8 @@
 			"name": "Launch Program",
 			"runtimeArgs": [
 				"-r",
+				"dotenv/config",
+				"-r",
 				"ts-node/register",
 				"-r",
 				"tsconfig-paths/register"
