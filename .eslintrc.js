@@ -23,7 +23,8 @@ module.exports = {
 				tabWidth: 4,
 				useTabs: true
 			}
-		]
+		],
+		"no-underscore-dangle": ["error", { "allow": ["_id"] }]
 	},
 	parserOptions: {
 		sourceType: "module",
