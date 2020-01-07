@@ -11,6 +11,24 @@ class UserRepository {
 		});
 		return new User(user._id, user.accountId, user.password);
 	}
+
+	public static async findByAccountId(
+		accountId: string
+	): Promise<User | null> {
+		const user = await UserModel.findOne({
+			accountId
+		}).exec();
+
+		return user && new User(user._id, user.accountId, user.password);
+	}
+
+	public static async authenticate(
+		accountId: string,
+		cleartextPassword: string
+	): Promise<User | null> {
+		const user = await this.findByAccountId(accountId);
+		return user && user.password.compare(cleartextPassword) ? user : null;
+	}
 }
 
 export default UserRepository;

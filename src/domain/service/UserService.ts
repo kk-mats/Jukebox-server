@@ -10,6 +10,13 @@ class UserService {
 	): Promise<User> {
 		return UserRepository.create(new RegisterUser(accountId, password));
 	}
+
+	public static async login(
+		accountId: string,
+		cleartextPassword: string
+	): Promise<User | null> {
+		return UserRepository.authenticate(accountId, cleartextPassword);
+	}
 }
 
 export default UserService;
