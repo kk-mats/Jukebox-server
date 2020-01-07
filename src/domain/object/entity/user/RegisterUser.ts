@@ -1,14 +1,14 @@
 import AccountId from "src/domain/object/value/user/AccountId";
-import Password from "src/domain/object/value/user/Password";
+import CleartextPassword from "src/domain/object/value/user/CleartextPassword";
 
 class RegisterUser {
 	readonly accountId: AccountId;
 
-	readonly password: Password;
+	readonly password: CleartextPassword;
 
-	constructor(rawAccountId: string, rawPassword: string) {
+	constructor(rawAccountId: string, cleartextPassword: string) {
 		this.accountId = new AccountId(rawAccountId);
-		this.password = new Password(rawPassword, true);
+		this.password = new CleartextPassword(cleartextPassword);
 	}
 }
 
