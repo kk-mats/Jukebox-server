@@ -24,7 +24,11 @@ module.exports = {
 				useTabs: true
 			}
 		],
-		"no-underscore-dangle": ["error", { "allow": ["_id"] }]
+		"no-underscore-dangle": ["error", { "allow": ["_id"] }],
+		"import/extensions": ["error", "ignorePackages", {
+			"js": "never",
+			"ts": "never",
+		  }]
 	},
 	parserOptions: {
 		sourceType: "module",
