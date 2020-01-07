@@ -5,6 +5,7 @@
 	"repository": "https://github.com/kk-mats/jukebox-server.git",
 	"author": "kk-mats <k.mats.kk@gmail.com>",
 	"dependencies": {
+		"@hapi/boom": "^9.0.0",
 		"archiver": "^3.1.1",
 		"axios": "^0.19.0",
 		"bcrypt": "^3.0.7",
@@ -23,6 +24,7 @@
 	"devDependencies": {
 		"@types/archiver": "^3.0.0",
 		"@types/bcrypt": "^3.0.0",
+		"@types/boom": "^7.3.0",
 		"@types/connect-mongodb-session": "^0.0.2",
 		"@types/cookie-parser": "^1.4.2",
 		"@types/express": "^4.17.2",
