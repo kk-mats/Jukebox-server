@@ -1,31 +1,45 @@
-import ErrorBase from "src/error/ErrorBase";
+import InternalError from "src/error/InternalError";
 
-export class TooShortAccountIdError extends ErrorBase {
-	constructor(readonly accountId: string, minlength: number) {
-		super(
-			"TooShortAccountIdError",
-			`Account ID must be at least ${minlength} characters.`
-		);
-	}
-}
+import Boom = require("boom");
 
-export class TooLongAccountIdError extends ErrorBase {
-	constructor(readonly accountId: string, maxlength: number) {
-		super(
-			"TooLongAccountIdError",
-			`Account ID must be ${maxlength} characters or less.`
-		);
-	}
-}
+export const tooShortAccountIdError = (
+	accountId: string,
+	minlength: number,
+	queryField?: string
+): InternalError => {
+	return new InternalError(
+		Boom.badRequest(`Account ID must be at least ${minlength} characters.`),
+		queryField
+	);
+};
 
-export class InvalidAccountIdError extends ErrorBase {
-	constructor(readonly accountId: string) {
-		super("InvalidAccountIdError", `Account ID must begin with "`);
-	}
-}
+export const tooLongAccountIdError = (
+	accountId: string,
+	maxlength: number,
+	queryField?: string
+): InternalError => {
+	return new InternalError(
+		Boom.badRequest(`Account ID must be ${maxlength} characters or less.`),
+		queryField
+	);
+};
 
-export class UnavailableAccountIdError extends ErrorBase {
-	constructor(readonly accountId: string) {
-		super("UnavaialbleAccountIdError", `Accound ID is not available.`);
-	}
-}
+export const invalidAccountIdError = (
+	accountId: string,
+	queryField?: string
+): InternalError => {
+	return new InternalError(
+		Boom.badRequest(`Account ID must begin with "`),
+		queryField
+	);
+};
+
+export const unavailableAccountIdError = (
+	accountId: string,
+	queryField?: string
+): InternalError => {
+	return new InternalError(
+		Boom.conflict(`Account ID is not available.`),
+		queryField
+	);
+};

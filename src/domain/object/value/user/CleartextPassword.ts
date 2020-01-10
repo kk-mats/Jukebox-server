@@ -7,23 +7,23 @@ import * as passwordErrors from "src/error/user/Password";
 class CleartextPassword {
 	readonly value: string;
 
-	constructor(rawValue: string) {
+	constructor(rawValue: string, queryField?: string) {
 		if (rawValue.length < user.password.minlength) {
-			throw new passwordErrors.TooShortPasswordError(
-				rawValue,
-				user.accountId.minlength
+			throw passwordErrors.tooShortPasswordError(
+				user.accountId.minlength,
+				queryField
 			);
 		}
 
 		if (user.password.maxlength < rawValue.length) {
-			throw new passwordErrors.TooLongPasswordError(
-				rawValue,
-				user.accountId.maxlength
+			throw passwordErrors.tooLongPasswordError(
+				user.accountId.maxlength,
+				queryField
 			);
 		}
 
 		if (!user.password.validator.test(rawValue)) {
-			throw new passwordErrors.InvalidPasswordError(rawValue);
+			throw passwordErrors.invalidPasswordError(queryField);
 		}
 		this.value = rawValue;
 	}

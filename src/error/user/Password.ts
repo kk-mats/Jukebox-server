@@ -1,25 +1,30 @@
-import ErrorBase from "src/error/ErrorBase";
+import InternalError from "src/error/InternalError";
 
-export class TooShortPasswordError extends ErrorBase {
-	constructor(readonly accountId: string, minlength: number) {
-		super(
-			"TooShortPasswordError",
-			`Password must be at least ${minlength} characters.`
-		);
-	}
-}
+import Boom = require("boom");
 
-export class TooLongPasswordError extends ErrorBase {
-	constructor(readonly accountId: string, maxlength: number) {
-		super(
-			"TooLongPasswordError",
-			`Password must be ${maxlength} characters or less.`
-		);
-	}
-}
+export const tooShortPasswordError = (
+	minlength: number,
+	queryField?: string
+): InternalError => {
+	return new InternalError(
+		Boom.badRequest(`Password must be at least ${minlength} characters.`),
+		queryField
+	);
+};
 
-export class InvalidPasswordError extends ErrorBase {
-	constructor(readonly accountId: string) {
-		super("InvalidPasswordError", `Password must begin with "`);
-	}
-}
+export const tooLongPasswordError = (
+	maxlength: number,
+	queryField?: string
+): InternalError => {
+	return new InternalError(
+		Boom.badRequest(`Password must be ${maxlength} characters or less.`),
+		queryField
+	);
+};
+
+export const invalidPasswordError = (queryField?: string): InternalError => {
+	return new InternalError(
+		Boom.badRequest("InvalidPasswordError", `Password must begin with "`),
+		queryField
+	);
+};
