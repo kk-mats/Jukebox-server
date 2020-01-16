@@ -17,7 +17,7 @@
 				"tsconfig-paths/register"
 			],
 			"args": [
-				"${workspaceFolder}/src/index.ts"
+				"${workspaceFolder}/src/application/route/index.ts"
 			]
 		}
 		
