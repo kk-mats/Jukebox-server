@@ -1,4 +1,4 @@
-import Boom = require("boom");
+import { Boom } from "@hapi/boom";
 
 export type InternalErrorPayload = {
 	queryField?: string;

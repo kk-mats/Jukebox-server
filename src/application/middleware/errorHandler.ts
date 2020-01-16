@@ -3,7 +3,7 @@ import * as express from "express";
 import InternalError from "src/error/InternalError";
 import Result from "src/domain/object/entity/Result";
 
-import Boom = require("boom");
+import Boom = require("@hapi/boom");
 
 const toResult = (error: InternalError): Result => {
 	const { status, payload } = error;

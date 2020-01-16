@@ -1,6 +1,6 @@
-import InternalError from "src/error/InternalError";
+import * as Boom from "@hapi/boom";
 
-import Boom = require("boom");
+import InternalError from "src/error/InternalError";
 
 export const tooShortPasswordError = (
 	minlength: number,
