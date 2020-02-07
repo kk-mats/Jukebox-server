@@ -2,6 +2,7 @@ import { Model as UserModel } from "src/infrastructure/model/User";
 
 import User from "src/domain/object/entity/user/User";
 import RegisterUser from "src/domain/object/entity/user/RegisterUser";
+import AuthenticateUser from "src/domain/object/entity/user/AuthenticateUser";
 
 class UserRepository {
 	public static async create(registerUser: RegisterUser): Promise<User> {
@@ -23,11 +24,13 @@ class UserRepository {
 	}
 
 	public static async authenticate(
-		accountId: string,
-		cleartextPassword: string
+		authenticateUser: AuthenticateUser
 	): Promise<User | null> {
-		const user = await this.findByAccountId(accountId);
-		return user && user.password.compare(cleartextPassword) ? user : null;
+		const user = await this.findByAccountId(authenticateUser.accountId);
+		return user &&
+			(await user.password.compare(authenticateUser.cleartextPassword))
+			? user
+			: null;
 	}
 }
 
