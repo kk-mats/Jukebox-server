@@ -1,10 +1,8 @@
 import * as express from "express";
-import * as session from "express-session";
-import * as passport from "passport";
 
 import initEnv from "src/application/init/env";
 import initDb from "src/application/init/db";
-import initSession from "src/application/init/session";
+import initSession from "src/application/init/server";
 
 import UserEntity from "src/domain/object/entity/user/User";
 
@@ -15,10 +13,10 @@ declare global {
 	}
 }
 
-const init = (): void => {
+const init = (): express.Express => {
 	initEnv();
 	initDb();
-	initSession();
+	return initSession();
 };
 
 export default init;
