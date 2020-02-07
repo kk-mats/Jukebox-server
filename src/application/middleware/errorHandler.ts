@@ -1,16 +1,15 @@
 import * as express from "express";
-
 import InternalError from "src/error/InternalError";
-import Result from "src/domain/object/entity/Result";
+import * as Result from "src/domain/object/entity/Result";
 
 import Boom = require("@hapi/boom");
 
-const toResult = (error: InternalError): Result => {
+const toResult = (error: InternalError): Result.Type => {
 	const { status, payload } = error;
 	return {
 		error: {
 			status,
-			queryField: payload.queryField || "unknown field",
+			queryField: payload.queryField,
 			message: payload.message
 		}
 	};
