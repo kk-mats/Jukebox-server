@@ -8,18 +8,25 @@
 			"type": "node",
 			"request": "launch",
 			"name": "Launch Program",
+			"runtimeExecutable":"${workspaceRoot}/node_modules/.bin/ts-node-dev",
 			"runtimeArgs": [
+				"--inspect",
+				"--watch",
+				"src",
 				"-r",
 				"dotenv/config",
-				"-r",
-				"ts-node/register",
 				"-r",
 				"tsconfig-paths/register"
 			],
 			"args": [
 				"${workspaceFolder}/src/application/route/index.ts"
-			]
+			],
+			"sourceMaps": true,
+			"cwd": "${workspaceRoot}",
+			"restart": true,
+			"protocol": "inspector",
+			"internalConsoleOptions": "openOnSessionStart",
+			"port": 9229
 		}
-		
 	]
 }
