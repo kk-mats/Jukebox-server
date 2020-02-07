@@ -2,7 +2,7 @@ import * as bcrypt from "bcrypt";
 
 import { user } from "src/constants/limitations";
 import EncryptedPassword from "src/domain/object/value/user/EncryptedPassword";
-import * as passwordErrors from "src/error/user/Password";
+import * as passwordErrors from "src/error/user/password";
 
 class CleartextPassword {
 	readonly value: string;
