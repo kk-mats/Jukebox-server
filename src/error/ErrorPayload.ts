@@ -6,7 +6,7 @@ type ErrorPayload = Readonly<
 			code: number;
 			message: string;
 		}>;
-	} & Required<InternalErrorPayload>
+	} & Readonly<InternalErrorPayload>
 >;
 
 export default ErrorPayload;
