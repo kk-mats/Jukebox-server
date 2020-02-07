@@ -1,6 +1,6 @@
 import ErrorPayload from "src/error/ErrorPayload";
 
-type Result<T = unknown> =
+export type Type<T = unknown> =
 	| {
 			error: ErrorPayload;
 	  }
@@ -9,4 +9,16 @@ type Result<T = unknown> =
 			error?: undefined;
 	  };
 
-export default Result;
+export const toError = <T = unknown>(error: ErrorPayload): Type<T> => {
+	return {
+		error
+	};
+};
+
+export const toValue = <T = unknown>(value: T): Type<T> => {
+	return {
+		value
+	};
+};
+
+export default Type;
