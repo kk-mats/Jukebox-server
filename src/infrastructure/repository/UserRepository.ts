@@ -23,6 +23,12 @@ class UserRepository {
 		return user && new User(user._id, user.accountId, user.password);
 	}
 
+	public static async findByUserId(userId: string): Promise<User | null> {
+		const user = await UserModel.findById(userId).exec();
+
+		return user && new User(user._id, user.accountId, user.password);
+	}
+
 	public static async authenticate(
 		authenticateUser: AuthenticateUser
 	): Promise<User | null> {
