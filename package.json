@@ -6,7 +6,7 @@
 	"author": "kk-mats <k.mats.kk@gmail.com>",
 	"dependencies": {
 		"archiver": "^3.1.1",
-		"axios": "^0.19.0",
+		"axios": "^0.21.1",
 		"bcrypt": "^3.0.6",
 		"connect-mongodb-session": "^2.2.0",
 		"cookie-parser": "^1.4.4",
